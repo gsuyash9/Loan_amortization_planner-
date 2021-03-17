@@ -5,6 +5,7 @@ import json
 
 
 import pandas as pd
+import numpy as np
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User, auth
 from django.contrib import messages
@@ -23,44 +24,77 @@ def home(request):
 def loaddata(request):
     csvinfo = loan.objects.filter().order_by('-id')[:0][::-1]
     return render(request, 'loaddata.html', {'data': csvinfo})
-def loandata(request):
-    if request.method=='GET':
-        return render(request,'loandata.html')
-    p=request.POST['loan_amount']
-    r=request.POST['interest_rate']
-    t=request.POST['loan_period']
-    p=float(p)
-    r=float(r)
-    t=float(t)
 
-    m=(p*(r/12)*(math.pow(1+r/12,12*t)))/(math.pow(1+r/12,12*t)-1)
+
+def PMT(rate, nper, pv, fv=0, type=0):
+    if rate != 0:
+        pmt = (rate*(fv+pv*(1 + rate)**nper)) / \
+            ((1+rate*type)*(1-(1 + rate)**nper))
+    else:
+        pmt = (-1*(fv+pv)/nper)
+    return(pmt)
+
+
+def IPMT(rate, per, nper, pv, fv=0, type=0):
+    ipmt = -(((1+rate)**(per-1)) * (pv*rate + PMT(rate, nper, pv,
+                                                  fv=0, type=0)) - PMT(rate, nper, pv, fv=0, type=0))
+    return(ipmt)
+
+
+def PPMT(rate, per, nper, pv, fv=0, type=0):
+  ppmt = PMT(rate, nper, pv, fv=0, type=0) - \
+      IPMT(rate, per, nper, pv, fv=0, type=0)
+  return(ppmt)
+
+
+def amortisation_schedule(amount, annualinterestrate, paymentsperyear, years):
+
+    df = pd.DataFrame({'Principal': [PPMT(annualinterestrate/paymentsperyear, i+1, paymentsperyear*years, amount) for i in range(paymentsperyear*years)],
+                       'Interest': [IPMT(annualinterestrate/paymentsperyear, i+1, paymentsperyear*years, amount) for i in range(paymentsperyear*years)]})
+
+    df['Instalment'] = df.Principal + df.Interest
+    df['Balance'] = amount + np.cumsum(df.Principal)
+    return(df)
+
+def loandata(request):
+    if request.method == 'GET':
+        return render(request, 'loandata.html')
+    p = request.POST['loan_amount']
+    r = request.POST['interest_rate']
+    t = request.POST['loan_period']
+    p = float(p)
+    r = float(r)
+    t = float(t)
+    df=amortisation_schedule(p,r,t*12,t)
+    print(df)
+    m = (p*(r/12)*(math.pow(1+r/12, 12*t)))/(math.pow(1+r/12, 12*t)-1)
     #print(str(round(m,2)))
-    month=12*t
-    month=int(month)
-    stbalance=p
-   
-    data = {"sn": [], "pa": [], "m": [],"iap": [], "lob": []}
-    
+    month = 12*t
+    month = int(month)
+    stbalance = p
+
+    data = {"sn": [], "pa": [], "m": [], "iap": [], "lob": []}
+
     for number, amount, interest, principal, balance in amortization_schedule(p, r, month):
-        print(number,round(amount,2),round(interest,2), round(principal,2), round(balance,2))
+        print(number, round(amount, 2), round(interest, 2),
+              round(principal, 2), round(balance, 2))
         data["sn"].append(str(number))
-        data["pa"].append(str(round(principal+interest,2)))
-        data["m"].append(str(round(principal,2)))
-        data["iap"].append(str(round(interest,2)))
-        data["lob"].append(str(round(balance,2)))
-        
+        data["pa"].append(str(round(principal+interest, 2)))
+        data["m"].append(str(round(principal, 2)))
+        data["iap"].append(str(round(interest, 2)))
+        data["lob"].append(str(round(balance, 2)))
+
     #print(data)
-    
+
     csv_file = pd.DataFrame(data)
-    #result = json.dumps(data) 
+    #result = json.dumps(data)
     #context = Context(data)
     #print(context)
     #print(csv_file)
     for index, row in csv_file.iterrows():
-        
-        
-        _,created = loan.objects.update_or_create(
-            
+
+        _, created = loan.objects.update_or_create(
+
             sn=row['sn'],
             pa=row['pa'],
             pap=row['m'],
@@ -70,10 +104,6 @@ def loandata(request):
     csvinfo = loan.objects.filter().order_by('-id')[:month][::-1]
     return render(request, 'loaddata.html', {'data': csvinfo})
 
-
-    
-
-    
 
 def signup(request):
     if request.method == 'POST':
@@ -119,4 +149,3 @@ def login(request):
 def logout(request):
     auth.logout(request)
     return redirect('/')
-
