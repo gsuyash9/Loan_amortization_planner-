@@ -38,19 +38,17 @@ def loandata(request):
     month=12*t
     month=int(month)
     stbalance=p
-    endbalance=p
+   
+    data = {"sn": [], "pa": [], "m": [],"iap": [], "lob": []}
+    
     for number, amount, interest, principal, balance in amortization_schedule(p, r, month):
         print(number,round(amount,2),round(interest,2), round(principal,2), round(balance,2))
-    data = {"sn": [], "pa": [], "m": [],"iap": [], "lob": []}
-    for i in range(1,month+1):
-        interest_charge=r/12 * stbalance
-        endbalance=stbalance+interest_charge-m
-        data["sn"].append(str(i))
-        data["pa"].append(str(round(stbalance,2)))
-        data["m"].append(str(round(m,2)))
-        data["iap"].append(str(round(interest_charge,2)))
-        data["lob"].append(str(round(endbalance,2)))
-        stbalance=endbalance
+        data["sn"].append(str(number))
+        data["pa"].append(str(round(principal+interest,2)))
+        data["m"].append(str(round(principal,2)))
+        data["iap"].append(str(round(interest,2)))
+        data["lob"].append(str(round(balance,2)))
+        
     #print(data)
     
     csv_file = pd.DataFrame(data)
