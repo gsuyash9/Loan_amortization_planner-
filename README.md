@@ -7,10 +7,13 @@
   Download
   Go to https://github.com/gsuyash9/Loan_amortization_planner-/
   Run
+  
   Install virtualenv
 
   on Ubuntu: $ sudo apt install python-virtualenv
+	
   on Windows Powershell $ pip install virtualenv
+	
   Create a virtual environment
 
   on Ubuntu: $ virtualenv env -p python3.6
