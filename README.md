@@ -4,25 +4,22 @@
 
 # How to get started
   Download and install python 3.6 and git
-  Download
+# Download
   Go to https://github.com/gsuyash9/Loan_amortization_planner-/
-  Run
+# Run
   
-  Install virtualenv
-
-  on Ubuntu: $ sudo apt install python-virtualenv
+  # Install virtualenv
+  	on Ubuntu: $ sudo apt install python-virtualenv
+	on Windows Powershell $ pip install virtualenv
 	
-  on Windows Powershell $ pip install virtualenv
-	
-  Create a virtual environment
-
-  on Ubuntu: $ virtualenv env -p python3.6
-  on Windows: $ virtualenv env
-  Activate the env:
-
-  on Ubuntu: $ source env/bin/activate
-  on Windows: $ ./env/scripts/activate
-  Install the requirements: $ pip install -r requirements.txt
+  # Create a virtual environment
+	on Ubuntu: $ virtualenv env -p python3.6
+  	on Windows: $ virtualenv env
+  # Activate the env:
+	on Ubuntu: $ source env/bin/activate
+  	on Windows: $ ./env/scripts/activate
+  # Install the requirements: 
+  	$ pip install -r requirements.txt
   
   Make migrations $ python manage.py makemigrations
 
