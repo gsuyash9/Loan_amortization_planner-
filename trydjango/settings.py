@@ -25,7 +25,7 @@ SECRET_KEY = 'rz!k24=nk1yb4-6i5-#p*q#a6c(dd8n%jbi@=op+4o=@*--^^w'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['0.0.0.0','https://loan-amortization-planner.herokuapp.com/','127.0.0.0.1']
+ALLOWED_HOSTS = ['loan-amortization-planner.herokuapp.com','127.0.0.0.1']
 
 
 # Application definition
