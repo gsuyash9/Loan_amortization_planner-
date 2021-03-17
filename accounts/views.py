@@ -9,6 +9,8 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.models import User, auth
 from django.contrib import messages
 from django.template import Context, Template
+from amortization.schedule import amortization_schedule
+
 from .models import loan
 
 
@@ -17,8 +19,9 @@ from .models import loan
 def home(request):
     return render(request, 'home.html')
 
+
 def loaddata(request):
-    csvinfo = loan.objects.all()
+    csvinfo = loan.objects.filter().order_by('-id')[:0][::-1]
     return render(request, 'loaddata.html', {'data': csvinfo})
 def loandata(request):
     if request.method=='GET':
@@ -38,15 +41,14 @@ def loandata(request):
     endbalance=p
     
     data = {"sn": [], "pa": [], "m": [],"iap": [], "lob": []}
-    for i in range(1,month+1):
-        interest_charge=r/12 * stbalance
-        endbalance=stbalance+interest_charge-m
-        data["sn"].append(str(i))
-        data["pa"].append(str(round(stbalance,2)))
-        data["m"].append(str(round(m,2)))
-        data["iap"].append(str(round(interest_charge,2)))
-        data["lob"].append(str(round(endbalance,2)))
-        stbalance=endbalance
+    for number, amount, interest, principal, balance in amortization_schedule(p, r, month):
+        print(number,round(amount,2),round(interest,2), round(principal,2), round(balance,2))
+        data["sn"].append(str(number))
+        data["pa"].append(str(round(amount,2)))
+        data["m"].append(str(round(principal,2)))
+        data["iap"].append(str(round(interest,2)))
+        data["lob"].append(str(round(balance,2)))
+        
     #print(data)
     
     csv_file = pd.DataFrame(data)
