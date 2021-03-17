@@ -65,13 +65,16 @@ def loandata(request):
     p = float(p)
     r = float(r)
     t = float(t)
-    df=amortisation_schedule(p,r,t*12,t)
-    print(df)
+    
+    
     m = (p*(r/12)*(math.pow(1+r/12, 12*t)))/(math.pow(1+r/12, 12*t)-1)
     #print(str(round(m,2)))
     month = 12*t
     month = int(month)
     stbalance = p
+    t=int(t)
+    df=amortisation_schedule(p,r,month,t)
+    print(df)
 
     data = {"sn": [], "pa": [], "m": [], "iap": [], "lob": []}
 
