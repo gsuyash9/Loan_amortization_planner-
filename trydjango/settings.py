@@ -25,7 +25,7 @@ SECRET_KEY = 'rz!k24=nk1yb4-6i5-#p*q#a6c(dd8n%jbi@=op+4o=@*--^^w'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['loan-amortization-planner.herokuapp.com','127.0.0.0.1']
 
 
 # Application definition
@@ -119,3 +119,4 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT= os.path.join(BASE_DIR,'staticfiles')
