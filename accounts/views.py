@@ -16,7 +16,7 @@ from .models import loan
 
 
 # Create your views here.
-data = {"sn": [], "pa": [], "m": [], "iap": [], "lob": []}
+
 def home(request):
     return render(request, 'home.html')
 
@@ -26,39 +26,7 @@ def loaddata(request):
     return render(request, 'loaddata.html', {'data': csvinfo})
 
 
-def PMT(rate, nper, pv, fv=0, type=0):
-    if rate != 0:
-        pmt = (rate*(fv+pv*(1 + rate)**nper)) / \
-            ((1+rate*type)*(1-(1 + rate)**nper))
-    else:
-        pmt = (-1*(fv+pv)/nper)
-    return(pmt)
 
-
-def IPMT(rate, per, nper, pv, fv=0, type=0):
-    ipmt = -(((1+rate)**(per-1)) * (pv*rate + PMT(rate, nper, pv,
-                                                  fv=0, type=0)) - PMT(rate, nper, pv, fv=0, type=0))
-    return(ipmt)
-
-
-def PPMT(rate, per, nper, pv, fv=0, type=0):
-  ppmt = PMT(rate, nper, pv, fv=0, type=0) - \
-      IPMT(rate, per, nper, pv, fv=0, type=0)
-  return(ppmt)
-
-
-def amortisation_schedule(amount, annualinterestrate, paymentsperyear, years):
-
-    df = pd.DataFrame({'Principal': [PPMT(annualinterestrate/paymentsperyear, i+1, paymentsperyear*years, amount) for i in range(paymentsperyear*years)],
-                       'Interest': [IPMT(annualinterestrate/paymentsperyear, i+1, paymentsperyear*years, amount) for i in range(paymentsperyear*years)]})
-
-    df['Instalment'] = df.Principal + df.Interest
-    data['m']=df.Principal
-    data['iap']=df.Interest
-    data['pa']=df.Principal + df.Interest
-    df['Balance'] = amount + np.cumsum(df.Principal)
-    data['lob']= amount + np.cumsum(df.Principal)
-    return(df)
 
 def loandata(request):
     if request.method == 'GET':
@@ -68,36 +36,43 @@ def loandata(request):
     t = request.POST['loan_period']
     p = float(p)
     r = float(r)
+    r = (r/100)/12
+    
     t = float(t)
-    
-    
-    m = (p*(r/12)*(math.pow(1+r/12, 12*t)))/(math.pow(1+r/12, 12*t)-1)
+    month=12*t
+
+    m = (r*p*((1+r)**month))/(((1+r)**month)-1)
     #print(str(round(m,2)))
-    month = 12*t
-    month = int(month)
-    stbalance = p
-    t=int(t)
-    df=amortisation_schedule(p,r,month,t)
-    print(df)
-
+    month=int(month)
     
+    stbalance = p
+    endbalance = p
 
-    for number, amount, interest, principal, balance in amortization_schedule(p, r, month):
-        print(number, round(amount, 2), round(interest, 2),
-              round(principal, 2), round(balance, 2))
-        data["sn"].append(str(number))
-        # data["pa"].append(str(round(principal+interest, 2)))
-        # data["m"].append(str(round(principal, 2)))
-        # data["iap"].append(str(round(interest, 2)))
-        # data["lob"].append(str(round(balance, 2)))
+    #df = amortisation_schedule(p, r, t, t/12)
+    #print(df)
+    data = {"sn": [], "pa": [], "m": [], "iap": [], "lob": []}
 
+    # for number, amount, interest, principal, balance in amortization_schedule(p, r, month):
+    #     print(number, round(amount, 2), round(interest, 2),
+    #           round(principal, 2), round(balance, 2))
+    print(month)
+    for i in range(1,month+1):
+        interest_charge=r*stbalance
+        payment_amount=m-interest_charge
+        endbalance=stbalance+interest_charge-m
+        data["sn"].append(str(i))
+        data["pa"].append(str(round(m,2)))
+        data["m"].append(str(round(payment_amount,2)))
+        data["iap"].append(str(round(interest_charge,2)))
+        data["lob"].append(str(round(endbalance,2)))
+        stbalance=endbalance
     #print(data)
 
     csv_file = pd.DataFrame(data)
     #result = json.dumps(data)
     #context = Context(data)
     #print(context)
-    #print(csv_file)
+    print(csv_file)
     for index, row in csv_file.iterrows():
 
         _, created = loan.objects.update_or_create(
