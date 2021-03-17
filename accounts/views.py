@@ -16,7 +16,7 @@ from .models import loan
 
 
 # Create your views here.
-
+data = {"sn": [], "pa": [], "m": [], "iap": [], "lob": []}
 def home(request):
     return render(request, 'home.html')
 
@@ -53,7 +53,11 @@ def amortisation_schedule(amount, annualinterestrate, paymentsperyear, years):
                        'Interest': [IPMT(annualinterestrate/paymentsperyear, i+1, paymentsperyear*years, amount) for i in range(paymentsperyear*years)]})
 
     df['Instalment'] = df.Principal + df.Interest
+    data['m']=df.Principal
+    data['iap']=df.Interest
+    data['pa']=df.Principal + df.Interest
     df['Balance'] = amount + np.cumsum(df.Principal)
+    data['lob']= amount + np.cumsum(df.Principal)
     return(df)
 
 def loandata(request):
@@ -76,16 +80,16 @@ def loandata(request):
     df=amortisation_schedule(p,r,month,t)
     print(df)
 
-    data = {"sn": [], "pa": [], "m": [], "iap": [], "lob": []}
+    
 
     for number, amount, interest, principal, balance in amortization_schedule(p, r, month):
         print(number, round(amount, 2), round(interest, 2),
               round(principal, 2), round(balance, 2))
         data["sn"].append(str(number))
-        data["pa"].append(str(round(principal+interest, 2)))
-        data["m"].append(str(round(principal, 2)))
-        data["iap"].append(str(round(interest, 2)))
-        data["lob"].append(str(round(balance, 2)))
+        # data["pa"].append(str(round(principal+interest, 2)))
+        # data["m"].append(str(round(principal, 2)))
+        # data["iap"].append(str(round(interest, 2)))
+        # data["lob"].append(str(round(balance, 2)))
 
     #print(data)
 
