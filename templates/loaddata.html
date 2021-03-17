@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div>
+    
+    <table>
+        <tr>
+            <th>Payment No</th>
+            <th>Payment Amount</th>
+            <th>Principal Amount Paid</th>
+            <th>Interest Amount Paid</th>
+            <th>Loan Outstanding Amount</th>
+        </tr>
+      
+      {% for datas in data%}
+        
+        <tr>
+            <td>{{datas.sn}}</td>
+            <td>{{datas.pa}}</td>
+            <td>{{datas.pap}}</td>
+            <td>{{datas.iap}}</td>
+            <td>{{datas.lob}}</td>    
+        </tr>
+          
+      
+      {% endfor %}
+       
+      </table>
+  
+       
+    
+  
+    
+    
+</div>
+{% endblock %}

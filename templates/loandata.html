@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <form action="loandata" method="POST">
+        {% csrf_token %}
+        <h3>Fill form to calculate your loan amortization schedule</h3>
+        <label for="load_amount">Loan amount</label>
+        <input type="text" name="loan_amount" required />
+        <label for="interest_rate">Annual Interest Rate</label>
+        <input type="text" name="interest_rate" required />
+        <label for="loan_period">Loan Period</label>
+        <input type="text" name="loan_period" required />
+       
+        <button>Submit</button>
+      
+
+    </form>
+{% endblock %}
