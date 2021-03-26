@@ -5,9 +5,7 @@
 # How to get started
   Download and install python 3.6 and git
 # Download
-  Go to https://github.com/gsuyash9/Loan_amortization_planner-/
- 
-  		https://loan-amortization-planner.herokuapp.com/
+  Go to https://loan-amortization-planner.herokuapp.com/
 # Run
 	# Install virtualenv
   		on Ubuntu: $ sudo apt install python-virtualenv
